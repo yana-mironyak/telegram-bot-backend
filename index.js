@@ -41,7 +41,6 @@ const start = () => {
   });
 
   bot.on("callback_query", (msg) => {
-    console.log(msg);
     const data = msg.data;
     const chatId = msg.message.chat.id;
 
