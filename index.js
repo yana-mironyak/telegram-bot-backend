@@ -4,7 +4,6 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const token = process.env.TOKEN;
-
 const bot = new TelegramBot(token, { polling: true });
 const options = {
   reply_markup: JSON.stringify({
