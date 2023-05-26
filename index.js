@@ -30,12 +30,11 @@ const start = () => {
     if (text === "/start") {
       await bot.sendMessage(chatId, "Шо треба?");
     }
-
     if (text === "/info") {
       await bot.sendMessage(chatId, "Обери категорію", options);
+    } else {
+      await bot.sendMessage(chatId, "Якась хуйня");
     }
-
-    await bot.sendMessage(chatId, "Якась хуйня");
   });
 
   bot.on("callback_query", (msg) => {
