@@ -35,7 +35,7 @@ const start = () => {
       await bot.sendMessage(chatId, "Обери категорію", options);
     }
 
-    return bot.sendMessage(chatId, "Якась хуйня");
+    await bot.sendMessage(chatId, "Якась хуйня");
   });
 
   bot.on("callback_query", (msg) => {
