@@ -4,16 +4,12 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const token = process.env.TOKEN;
-const bot = new TelegramBot(token, {
-  polling: {
-    interval: 1000,
-  },
-});
+const bot = new TelegramBot(token, { polling: true });
 const options = {
   reply_markup: JSON.stringify({
     inline_keyboard: [
       [
-        { text: "Бухгалтерія", callback_data: `<h1>Помилка оформлення<h1>` },
+        { text: "Бухгалтерія", callback_data: "Помилка оформлення" },
         { text: "ЮД", callback_data: "Гарантійний лист" },
       ],
       [{ text: "Фітнес", callback_data: "Відміна заняття" }],
@@ -32,14 +28,13 @@ const start = () => {
     const text = msg.text;
 
     if (text === "/start") {
-      return bot.sendMessage(chatId, "Шо треба?");
+      await bot.sendMessage(chatId, "Шо треба?");
     }
 
     if (text === "/info") {
-      return bot.sendMessage(chatId, "Обери категорію", options);
+      await bot.sendMessage(chatId, "Обери категорію", options);
     }
 
-    console.log(msg);
     return bot.sendMessage(chatId, "Якась хуйня");
   });
 
