@@ -11,8 +11,8 @@ const options = {
       [
         { text: "Бухгалтерія", callback_data: "Помилка оформлення" },
         { text: "ЮД", callback_data: "Гарантійний лист" },
+        { text: "Фітнес", callback_data: "Відміна заняття" },
       ],
-      [{ text: "Фітнес", callback_data: "Відміна заняття" }],
     ],
   }),
 };
@@ -28,13 +28,14 @@ const start = () => {
     const text = msg.text;
 
     if (text === "/start") {
-      await bot.sendMessage(chatId, "Шо треба?");
+      return bot.sendMessage(chatId, "Шо треба?");
     }
+
     if (text === "/info") {
-      await bot.sendMessage(chatId, "Обери категорію", options);
-    } else {
-      await bot.sendMessage(chatId, "Якась хуйня");
+      return bot.sendMessage(chatId, "Обери категорію", options);
     }
+
+    return bot.sendMessage(chatId, "Якась хуйня");
   });
 
   bot.on("callback_query", (msg) => {
