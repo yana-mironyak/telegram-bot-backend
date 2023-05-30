@@ -39,12 +39,12 @@ const start = () => {
     return bot.sendMessage(chatId, "Якась хуйня");
   });
 
-  bot.on("callback_query", (msg) => {
-    const data = msg.data;
-    const chatId = msg.message.chat.id;
+  // bot.on("callback_query", (msg) => {
+  //   const data = msg.data;
+  //   const chatId = msg.message.chat.id;
 
-    bot.sendMessage(chatId, `${data}`);
-  });
+  //   bot.sendMessage(chatId, `${data}`);
+  // });
 };
 
 start();
