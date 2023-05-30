@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const token = process.env.TOKEN;
-const bot = new TelegramBot(token);
+const bot = new TelegramBot(token. {polling: true});
 
 const options = {
   reply_markup: JSON.stringify({
@@ -18,8 +18,8 @@ const options = {
   }),
 };
 
-const start = () => {
-  bot.startPolling({ restart: true });
+
+  // bot.startPolling({ restart: true });
   bot.setMyCommands([
     { command: "/start", description: "Let`s go" },
     { command: "/info", description: "Categories" },
@@ -46,6 +46,5 @@ const start = () => {
 
   //   bot.sendMessage(chatId, `${data}`);
   // });
-};
 
-start();
+// start();
