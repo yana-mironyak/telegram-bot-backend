@@ -1,5 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
 import * as dotenv from "dotenv";
+import { reset } from "nodemon";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ const options = {
 };
 
 const start = () => {
+  bot.startPolling({ restart: true });
   bot.setMyCommands([
     { command: "/start", description: "Let`s go" },
     { command: "/info", description: "Categories" },
