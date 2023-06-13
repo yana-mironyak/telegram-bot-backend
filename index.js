@@ -11,34 +11,6 @@ const bot = new TelegramBot(token, { polling: true });
 const templateSource = fs.readFileSync("emailTemplate.hbs", "utf8");
 const template = handlebars.compile(templateSource);
 
-const transporter = nodemailer.createTransport({
-  service: "SMTP",
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: "mironiak.yana@sportlife.kiev.ua",
-    pass: process.env.PASS,
-  },
-});
-
-function sendEmailWithTemplate(to, subject, message) {
-  const data = {
-    subject: "Тема листа",
-    message: "Текст листа",
-  };
-
-  const emailBody = template(data);
-
-  transporter.sendMail({ to, subject, html: emailBody }, (error, info) => {
-    if (error) {
-      console.log("Помилка при відправленні листа:", error);
-    } else {
-      console.log("Лист відправлено:", info.response);
-    }
-  });
-}
-
 const options = {
   reply_markup: JSON.stringify({
     keyboard: [[{ text: "Бухгалтерія" }, { text: "ЮД" }, { text: "Фітнес" }]],
@@ -87,7 +59,7 @@ const fitness = {
       [
         {
           text: "Відміна запізення",
-          callback_data: "Тема листа: Відміна запізення",
+          callback_data: "Шаблон листа відправлено на пошту",
         },
       ],
       [
@@ -101,7 +73,42 @@ const fitness = {
   }),
 };
 
-const start = () => {
+const start = async () => {
+  process.env.GOOGLE_APPLICATION_CREDENTIALS =
+    "./manual-sl-bot-af6d6e6bf571.json";
+
+  const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      type: "OAuth2",
+      user: "sportlife.manual@gmail.com",
+      clientId: process.env.CLIENT_ID,
+      clientSecret: process.env.CLIENT_SECRET,
+      refreshToken: process.env.REFRESH_TOKEN,
+      accessToken: process.env.ACCESS_TOKEN,
+    },
+  });
+
+  function sendEmailWithTemplate(to, subject, message) {
+    const data = {
+      subject: "Тема листа",
+      message: "Текст листа",
+    };
+
+    const emailBody = template(data);
+
+    transporter.sendMail({ to, subject, html: emailBody }, (error, info) => {
+      if (error) {
+        console.log("Помилка при відправленні листа:", error);
+      } else {
+        console.log("Лист відправлено:", info.response);
+      }
+    });
+  }
+
   bot.setMyCommands([
     { command: "/start", description: "Let`s go" },
     { command: "/categories", description: "Categories" },
@@ -146,9 +153,8 @@ const start = () => {
       //     parse_mode: "MarkdownV2",
       //   }
       // );
-
       const to = "recipient@example.com";
-      const subject = "Тема листа";
+      const subject = "Відміна запізнення, ПОД, ПІБ";
       const message = "Текст листа";
 
       sendEmailWithTemplate(to, subject, message);
