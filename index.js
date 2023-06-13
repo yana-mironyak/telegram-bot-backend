@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import handlebars from "handlebars";
 import fs from "fs";
 import nodemailer from "nodemailer";
+// import { GoogleAuth } from "google-auth-library";
 
 dotenv.config();
 
@@ -59,7 +60,7 @@ const fitness = {
       [
         {
           text: "Відміна запізення",
-          callback_data: "Шаблон листа відправлено на пошту",
+          callback_data: "Відміна запізення на пошті",
         },
       ],
       [
@@ -76,6 +77,9 @@ const fitness = {
 const start = async () => {
   process.env.GOOGLE_APPLICATION_CREDENTIALS =
     "./manual-sl-bot-af6d6e6bf571.json";
+
+  // const auth = new GoogleAuth();
+  // const client = await auth.getClient();
 
   const transporter = nodemailer.createTransport({
     service: "Gmail",
@@ -145,7 +149,7 @@ const start = async () => {
     const data = query.data;
     const chatId = query.message.chat.id;
 
-    if (data === "Тема листа: Відміна запізення") {
+    if (data === "Відміна запізення на пошті") {
       // return bot.sendMessage(
       //   chatId,
       //   "Адресати: example@example\\.com, example@example\\.com, example@example\\.com\n\nТема листа: Ситуація з клієнтом, ПОД, ПІБ\n\nТіло листа ↓↓↓\n\n*Ситуація:*\n*Завдання:*\n\n*Інформація про клієнта:*\nПІБ:\nКатегорія картки:\nКод анкети:",
@@ -153,7 +157,7 @@ const start = async () => {
       //     parse_mode: "MarkdownV2",
       //   }
       // );
-      const to = "recipient@example.com";
+      const to = "mironiak.yana@sportlife.kiev.ua";
       const subject = "Відміна запізнення, ПОД, ПІБ";
       const message = "Текст листа";
 
