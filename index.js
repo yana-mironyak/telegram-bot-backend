@@ -1,5 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import * as dotenv from "dotenv";
+import connectDB from "./config/database.js";
+import { getAllFitness } from "./routes/api/fitness.api.js";
 // import handlebars from "handlebars";
 // import fs from "fs";
 // import nodemailer from "nodemailer";
@@ -111,6 +113,9 @@ const start = async () => {
   //     }
   //   });
   // }
+
+  connectDB();
+  getAllFitness();
 
   bot.setMyCommands([
     { command: "/start", description: "Let`s go" },
