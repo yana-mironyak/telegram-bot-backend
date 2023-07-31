@@ -1,20 +1,12 @@
 import TelegramBot from "node-telegram-bot-api";
 import * as dotenv from "dotenv";
 import connectDB from "./config/database.js";
-import { getAllFitness } from "./routes/api/fitness.api.js";
-// import handlebars from "handlebars";
-// import fs from "fs";
-// import nodemailer from "nodemailer";
-// import { GoogleAuth } from "google-auth-library";
+import getAllFitness from "./routes/api/fitness.api.js";
 
 dotenv.config();
 
 const token = process.env.TOKEN;
 const bot = new TelegramBot(token, { polling: true });
-// const templateSource = fs.readFileSync("emailTemplate.hbs", "utf8");
-// const template = handlebars.compile(templateSource);
-// const encodedTemplate = Buffer.from(templateSource).toString("base64");
-// console.log(encodedTemplate);
 
 const options = {
   reply_markup: JSON.stringify({
@@ -79,43 +71,7 @@ const fitness = {
 };
 
 const start = async () => {
-  // const auth = new GoogleAuth();
-  // const client = await auth.getClient();
-
-  // const transporter = nodemailer.createTransport({
-  //   service: "Gmail",
-  //   host: "smtp.gmail.com",
-  //   port: 587,
-  //   secure: false,
-  //   auth: {
-  //     type: "OAuth2",
-  //     user: "sportlife.manual@gmail.com",
-  //     clientId: process.env.CLIENT_ID,
-  //     clientSecret: process.env.CLIENT_SECRET,
-  //     refreshToken: process.env.REFRESH_TOKEN,
-  //     accessToken: process.env.ACCESS_TOKEN,
-  //   },
-  // });
-
-  // function sendEmailWithTemplate(to, subject, message) {
-  //   const data = {
-  //     subject: "Тема листа",
-  //     message: "Текст листа",
-  //   };
-
-  //   const emailBody = template(data);
-
-  //   transporter.sendMail({ to, subject, html: emailBody }, (error, info) => {
-  //     if (error) {
-  //       console.log("Помилка при відправленні листа:", error);
-  //     } else {
-  //       console.log("Лист відправлено:", info.response);
-  //     }
-  //   });
-  // }
-
   connectDB();
-  getAllFitness();
 
   bot.setMyCommands([
     { command: "/start", description: "Let`s go" },
@@ -145,7 +101,17 @@ const start = async () => {
     }
 
     if (text === "Фітнес") {
-      return bot.sendMessage(chatId, "Ахрана-атмєна", fitness);
+      try {
+        const fitnessData = await getAllFitness();
+        bot.sendMessage(chatId, JSON.stringify(fitnessData));
+      } catch (error) {
+        console.error("Error getting fitness data:", error);
+        bot.sendMessage(chatId, "Виникла помилка при отриманні даних з бази.");
+      }
+
+      return;
+
+      // return bot.sendMessage(chatId, "Ахрана-атмєна", fitness);
     }
 
     return bot.sendMessage(chatId, "Якась хуйня");
