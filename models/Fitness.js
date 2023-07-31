@@ -6,4 +6,4 @@ const fitnessSchema = new Schema({
   body: { type: String, required: true },
 });
 
-export const Fitness = model("Fitness", fitnessSchema);
+export const Fitness = model("fitness", fitnessSchema);
