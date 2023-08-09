@@ -50,25 +50,27 @@ const loyer = {
   }),
 };
 
-const fitness = {
-  reply_markup: JSON.stringify({
-    inline_keyboard: [
-      [
-        {
-          text: "Відміна запізення",
-          callback_data: "Відміна запізення на пошті",
-        },
-      ],
-      [
-        {
-          text: "Відміна оплати за групове заняття",
-          callback_data: "Відміна оплати за групове заняття",
-        },
-      ],
-      [{ text: "Скарга", callback_data: "Скарга" }],
-    ],
-  }),
-};
+// const generateFitnessButtons = async () => {
+//   try {
+//     const fitnessData = await getAllFitness();
+
+//     const fitnessButtons = fitnessData.map((item) => ({
+//       text: item.title,
+//       callback_data: item.body,
+//     }));
+
+//     const fitnessKeyboard = {
+//       reply_markup: JSON.stringify({
+//         inline_keyboard: fitnessButtons,
+//       }),
+//     };
+
+//     return fitnessKeyboard;
+//   } catch (error) {
+//     console.error("Error getting fitness data:", error);
+//     return null;
+//   }
+// };
 
 const start = async () => {
   connectDB();
@@ -101,17 +103,20 @@ const start = async () => {
     }
 
     if (text === "Фітнес") {
-      try {
-        const fitnessData = await getAllFitness();
-        bot.sendMessage(chatId, JSON.stringify(fitnessData));
-      } catch (error) {
-        console.error("Error getting fitness data:", error);
-        bot.sendMessage(chatId, "Виникла помилка при отриманні даних з бази.");
-      }
+      const fitnessData = await getAllFitness();
 
-      return;
+      const fitnessButtons = fitnessData.map((item) => ({
+        text: item.title,
+        callback_data: item.body,
+      }));
 
-      // return bot.sendMessage(chatId, "Ахрана-атмєна", fitness);
+      const fitnessKeyboard = {
+        reply_markup: JSON.stringify({
+          inline_keyboard: [fitnessButtons],
+        }),
+      };
+
+      return bot.sendMessage(chatId, "Ахрана-атмєна", fitnessKeyboard);
     }
 
     return bot.sendMessage(chatId, "Якась хуйня");
@@ -121,16 +126,11 @@ const start = async () => {
     const data = query.data;
     const chatId = query.message.chat.id;
 
-    if (data === "Відміна запізення на пошті") {
-      bot.sendMessage(chatId, "Напиши свою пошту, я відправлю тобі шаблон");
-      const to = "mironiak.yana@sportlife.kiev.ua";
-      const subject = "Відміна запізнення, ПОД, ПІБ";
-      const message = "Текст листа";
+    console.log(data);
 
-      sendEmailWithTemplate(to, subject, message);
-    }
+    const htmlMessage = `<b>${data}</b>\n\n<b>Інфо про клієнта</b>\nПІБ:\nКод анкети:`;
 
-    bot.sendMessage(chatId, `${data}`);
+    bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
   });
 };
 
