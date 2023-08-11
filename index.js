@@ -2,6 +2,7 @@ import TelegramBot from "node-telegram-bot-api";
 import * as dotenv from "dotenv";
 import connectDB from "./config/database.js";
 import getAllFitness from "./routes/api/fitness.api.js";
+import getAllLegal from "./routes/api/legal.api.js";
 
 dotenv.config();
 
@@ -14,63 +15,6 @@ const options = {
     resize_keyboard: true,
   }),
 };
-
-const buh = {
-  reply_markup: JSON.stringify({
-    inline_keyboard: [
-      [
-        {
-          text: "Повернення на віртуальний рахунок",
-          callback_data: "Повернення на віртуальний рахунок",
-        },
-      ],
-      [{ text: "Повернення авансу", callback_data: "Повернення авансу" }],
-      [{ text: "Подарункова картка", callback_data: "Подарункова картка" }],
-    ],
-  }),
-};
-
-const loyer = {
-  reply_markup: JSON.stringify({
-    inline_keyboard: [
-      [
-        {
-          text: "Гарантійний лист",
-          callback_data: "Гарантійний лист",
-        },
-      ],
-      [
-        {
-          text: "Порушення клубних правил",
-          callback_data: "Порушення клубних правил",
-        },
-      ],
-      [{ text: "Юридична відповідь", callback_data: "Юридична відповідь" }],
-    ],
-  }),
-};
-
-// const generateFitnessButtons = async () => {
-//   try {
-//     const fitnessData = await getAllFitness();
-
-//     const fitnessButtons = fitnessData.map((item) => ({
-//       text: item.title,
-//       callback_data: item.body,
-//     }));
-
-//     const fitnessKeyboard = {
-//       reply_markup: JSON.stringify({
-//         inline_keyboard: fitnessButtons,
-//       }),
-//     };
-
-//     return fitnessKeyboard;
-//   } catch (error) {
-//     console.error("Error getting fitness data:", error);
-//     return null;
-//   }
-// };
 
 const start = async () => {
   connectDB();
@@ -95,11 +39,37 @@ const start = async () => {
     }
 
     if (text === "Бухгалтерія") {
-      return bot.sendMessage(chatId, "Боже поможи", buh);
+      const accountingData = await getAllFitness();
+
+      const accountingButtons = accountingData.map((item) => ({
+        text: item.title,
+        callback_data: item.body,
+      }));
+
+      const accountingKeyboard = {
+        reply_markup: JSON.stringify({
+          inline_keyboard: [accountingButtons],
+        }),
+      };
+      return bot.sendMessage(chatId, "Боже поможи", accountingKeyboard);
     }
 
     if (text === "ЮД") {
-      return bot.sendMessage(chatId, "Хтось нарвався?", loyer);
+      const legalData = await getAllLegal();
+      console.log(legalData);
+
+      const legalButtons = legalData.map((item) => ({
+        text: item.title,
+        callback_data: item.title,
+      }));
+
+      const legalKeyboard = {
+        reply_markup: JSON.stringify({
+          inline_keyboard: [legalButtons],
+        }),
+      };
+
+      return bot.sendMessage(chatId, "Хтось нарвався?", legalKeyboard);
     }
 
     if (text === "Фітнес") {
