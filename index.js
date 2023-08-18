@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import connectDB from "./config/database.js";
 import getAllFitness from "./routes/api/fitness.api.js";
 import getAllLegal from "./routes/api/legal.api.js";
+import getAllAccounting from "./routes/api/accounting.api.js";
 
 dotenv.config();
 
@@ -16,6 +17,10 @@ const options = {
   }),
 };
 
+let accountingData;
+let legalData;
+let fitnessData;
+
 const start = async () => {
   connectDB();
 
@@ -28,8 +33,6 @@ const start = async () => {
     const chatId = msg.chat.id;
     const text = msg.text;
 
-    console.log(text);
-
     if (text === "/start") {
       return bot.sendMessage(chatId, "Шо вже трапилось?");
     }
@@ -39,7 +42,7 @@ const start = async () => {
     }
 
     if (text === "Бухгалтерія") {
-      const accountingData = await getAllFitness();
+      accountingData = await getAllAccounting();
 
       const accountingButtons = accountingData.map((item) => ({
         text: item.title,
@@ -51,21 +54,18 @@ const start = async () => {
           inline_keyboard: [accountingButtons],
         }),
       };
+
       return bot.sendMessage(chatId, "Боже поможи", accountingKeyboard);
     }
 
     if (text === "ЮД") {
-      const legalData = await getAllLegal();
-      console.log(legalData);
-
-      const legalButtons = legalData.map((item) => ({
-        text: item.title,
-        callback_data: item.title,
-      }));
+      legalData = await getAllLegal();
 
       const legalKeyboard = {
         reply_markup: JSON.stringify({
-          inline_keyboard: [legalButtons],
+          inline_keyboard: legalData.map((item) => [
+            { text: item.title, callback_data: item.body },
+          ]),
         }),
       };
 
@@ -73,16 +73,13 @@ const start = async () => {
     }
 
     if (text === "Фітнес") {
-      const fitnessData = await getAllFitness();
-
-      const fitnessButtons = fitnessData.map((item) => ({
-        text: item.title,
-        callback_data: item.body,
-      }));
+      fitnessData = await getAllFitness();
 
       const fitnessKeyboard = {
         reply_markup: JSON.stringify({
-          inline_keyboard: [fitnessButtons],
+          inline_keyboard: fitnessData.map((item) => [
+            { text: item.title, callback_data: item.body },
+          ]),
         }),
       };
 
@@ -96,7 +93,7 @@ const start = async () => {
     const data = query.data;
     const chatId = query.message.chat.id;
 
-    console.log(data);
+    // console.log(data);
 
     const htmlMessage = `<b>${data}</b>\n\n<b>Інфо про клієнта</b>\nПІБ:\nКод анкети:`;
 
