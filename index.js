@@ -44,14 +44,11 @@ const start = async () => {
     if (text === "Бухгалтерія") {
       accountingData = await getAllAccounting();
 
-      const accountingButtons = accountingData.map((item) => ({
-        text: item.title,
-        callback_data: item.body,
-      }));
-
       const accountingKeyboard = {
         reply_markup: JSON.stringify({
-          inline_keyboard: [accountingButtons],
+          inline_keyboard: accountingData((item) => [
+            { text: item.title, callback_data: item.id },
+          ]),
         }),
       };
 
@@ -64,7 +61,7 @@ const start = async () => {
       const legalKeyboard = {
         reply_markup: JSON.stringify({
           inline_keyboard: legalData.map((item) => [
-            { text: item.title, callback_data: item.body },
+            { text: item.title, callback_data: item.id },
           ]),
         }),
       };
@@ -78,7 +75,7 @@ const start = async () => {
       const fitnessKeyboard = {
         reply_markup: JSON.stringify({
           inline_keyboard: fitnessData.map((item) => [
-            { text: item.title, callback_data: item.body },
+            { text: item.title, callback_data: item.id },
           ]),
         }),
       };
@@ -90,12 +87,12 @@ const start = async () => {
   });
 
   bot.on("callback_query", (query) => {
-    const data = query.data;
+    const textId = query.data;
     const chatId = query.message.chat.id;
 
-    // console.log(data);
+    console.log(fitnessData);
 
-    const htmlMessage = `<b>${data}</b>\n\n<b>Інфо про клієнта</b>\nПІБ:\nКод анкети:`;
+    const htmlMessage = `<b>${textId}</b>\n\n<b>Інфо про клієнта</b>\nПІБ:\nКод анкети:`;
 
     bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
   });
