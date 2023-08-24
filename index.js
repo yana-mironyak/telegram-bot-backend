@@ -29,7 +29,7 @@ const start = async () => {
     { command: "/categories", description: "Categories" },
   ]);
 
-  bot.on("message", async (msg) => {
+  bot.on("message", async (msg, manualData) => {
     const chatId = msg.chat.id;
     const text = msg.text;
 
@@ -90,11 +90,23 @@ const start = async () => {
     const textId = query.data;
     const chatId = query.message.chat.id;
 
-    console.log(fitnessData);
+    const selectedManual = fitnessData.find((item) => item.id == textId);
 
-    const htmlMessage = `<b>${textId}</b>\n\n<b>Інфо про клієнта</b>\nПІБ:\nКод анкети:`;
+    if (selectedManual) {
+      const manualTitle = selectedManual.title;
+      const manualText = selectedManual.body;
+      const manualRecipients = selectedManual.recipients;
 
-    bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
+      const htmlMessage = `
+      Адресати: ${manualRecipients}\n\nТема листа: ${manualTitle}, Клуб, ПІБ\n
+      <b>${manualText}</b>\n
+      <b>Інфо про клієнта</b>
+      ПІБ:
+      Код анкети:\n
+      `;
+
+      bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
+    }
   });
 };
 
