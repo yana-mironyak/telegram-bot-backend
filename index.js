@@ -17,9 +17,20 @@ const options = {
   }),
 };
 
-let accountingData;
-let legalData;
-let fitnessData;
+const dataHandlers = {
+  Бухгалтерія: {
+    getAllData: getAllAccounting,
+    successMessage: "Боже поможи",
+  },
+  ЮД: {
+    getAllData: getAllLegal,
+    successMessage: "Хтось нарвався?",
+  },
+  Фітнес: {
+    getAllData: getAllFitness,
+    successMessage: "Ахрана-атмєна",
+  },
+};
 
 const start = async () => {
   connectDB();
@@ -29,7 +40,7 @@ const start = async () => {
     { command: "/categories", description: "Categories" },
   ]);
 
-  bot.on("message", async (msg, manualData) => {
+  bot.on("message", async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
 
@@ -41,71 +52,57 @@ const start = async () => {
       return bot.sendMessage(chatId, "Тицяй категорію", options);
     }
 
-    if (text === "Бухгалтерія") {
-      accountingData = await getAllAccounting();
+    if (dataHandlers[text]) {
+      const { getAllData, successMessage } = dataHandlers[text];
+      const data = await getAllData();
 
-      const accountingKeyboard = {
+      const keyboard = {
         reply_markup: JSON.stringify({
-          inline_keyboard: accountingData((item) => [
+          inline_keyboard: data.map((item) => [
             { text: item.title, callback_data: item.id },
           ]),
         }),
       };
 
-      return bot.sendMessage(chatId, "Боже поможи", accountingKeyboard);
-    }
-
-    if (text === "ЮД") {
-      legalData = await getAllLegal();
-
-      const legalKeyboard = {
-        reply_markup: JSON.stringify({
-          inline_keyboard: legalData.map((item) => [
-            { text: item.title, callback_data: item.id },
-          ]),
-        }),
-      };
-
-      return bot.sendMessage(chatId, "Хтось нарвався?", legalKeyboard);
-    }
-
-    if (text === "Фітнес") {
-      fitnessData = await getAllFitness();
-
-      const fitnessKeyboard = {
-        reply_markup: JSON.stringify({
-          inline_keyboard: fitnessData.map((item) => [
-            { text: item.title, callback_data: item.id },
-          ]),
-        }),
-      };
-
-      return bot.sendMessage(chatId, "Ахрана-атмєна", fitnessKeyboard);
+      return bot.sendMessage(chatId, successMessage, keyboard);
     }
 
     return bot.sendMessage(chatId, "Якась хуйня");
   });
 
-  bot.on("callback_query", (query) => {
+  bot.on("callback_query", async (query) => {
     const textId = query.data;
     const chatId = query.message.chat.id;
 
-    const selectedManual = fitnessData.find((item) => item.id == textId);
+    const findManual = async (textId) => {
+      for (const categoryData of Object.values(dataHandlers)) {
+        const selectedManual = await categoryData
+          .getAllData()
+          .find((item) => item.id == textId);
+
+        if (selectedManual) {
+          return selectedManual;
+        }
+      }
+      return null;
+    };
+
+    const selectedManual = await findManual(textId);
 
     if (selectedManual) {
-      const manualTitle = selectedManual.title;
-      const manualText = selectedManual.body;
-      const manualRecipients = selectedManual.recipients;
+      const { recipients, title, body } = selectedManual;
 
       const htmlMessage = `
-      Адресати: ${manualRecipients}\n\nТема листа: ${manualTitle}, Клуб, ПІБ\n
-      <b>${manualText}</b>\n
+      Адресати: ${recipients}\n\nТема листа: ${title}, Клуб, ПІБ\n
+      <b>${body}</b>\n
       <b>Інфо про клієнта</b>
       ПІБ:
       Код анкети:\n
       `;
 
       bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
+    } else {
+      bot.sendMessage(chatId, "Хм, щось пішло не так");
     }
   });
 };
