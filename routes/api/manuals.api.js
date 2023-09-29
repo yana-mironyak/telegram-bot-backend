@@ -11,7 +11,7 @@ export const getAllManuals = async () => {
   }
 };
 
-export const getById = async () => {
+export const getById = async (id) => {
   try {
     const manualById = await Manuals.findById(id);
 

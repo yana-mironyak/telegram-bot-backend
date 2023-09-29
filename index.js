@@ -17,7 +17,8 @@ const options = {
 
 const keyboardByCategory = {
   fitness: [],
-  test: [],
+  legal: [],
+  accounting: [],
 };
 
 const dataByCategory = async () => {
@@ -26,8 +27,11 @@ const dataByCategory = async () => {
   data.forEach((item) => {
     if (item.category === "fitness") {
       keyboardByCategory.fitness.push(item);
-    } else if (item.category === "test") {
-      keyboardByCategory.test.push(item);
+    }
+    if (item.category === "legal") {
+      keyboardByCategory.legal.push(item);
+    } else if (item.category === "accounting") {
+      keyboardByCategory.accounting.push(item);
     }
   });
 };
@@ -36,11 +40,11 @@ dataByCategory();
 
 const dataHandlers = {
   Бухгалтерія: {
-    category: "test",
+    category: "accounting",
     successMessage: "Боже поможи",
   },
   ЮД: {
-    category: "test",
+    category: "legal",
     successMessage: "Хтось нарвався?",
   },
   Фітнес: {
@@ -90,40 +94,67 @@ const start = async () => {
   bot.on("callback_query", async (query) => {
     const textId = query.data;
     const chatId = query.message.chat.id;
-    console.log(textId);
 
-    // const findManual = async (textId) => {
-    //   for (const categoryData of Object.values(dataHandlers)) {
-    //     const data = await categoryData.getAllData();
-    //     const selectedManual = data.find((item) => item.id == textId);
+    const findManual = async (textId) => {
+      const manual = await getById(textId);
 
-    //     if (selectedManual) {
-    //       return selectedManual;
-    //     }
-    //   }
-    //   return null;
-    // };
+      if (manual) {
+        return manual;
+      }
 
-    // const selectedManual = await findManual(textId);
+      return null;
+    };
 
-    // if (selectedManual) {
-    //   const { recipients, title, body, category } = selectedManual;
+    const selectedManual = await findManual(textId);
+    const { recipients, title, body, category, task } = selectedManual;
 
-    //   const htmlMessage = `
-    //   Адресати: ${recipients}\n\nТема листа: ${title}, ПОД, ПІБ\n
-    //   <b>Ситуація:</b> ${body}\n
-    //   <b>Інфо про клієнта</b>
-    //   ПІБ:
-    //   Код анкети:
-    //   Абонемент:\n
-    //   `;
+    if (selectedManual) {
+      if (category === "fitness") {
+        const htmlMessage = `
+        Адресати: ${recipients}\n\nТема листа: ${title}, ПОД, ПІБ\n
+        <b>Ситуація:</b> ${body}\n
+        <b>Інфо про клієнта</b>
+        ПІБ:
+        Код анкети:
+        Абонемент:\n
+        `;
 
-    //   bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
-    // } else {
-    //   bot.sendMessage(chatId, "Хм, щось пішло не так");
-    // }
+        bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
+      }
+      if (category === "legal") {
+        const htmlMessage = `
+        Адресати: ${recipients}\n\nТема листа: ${title}, ПОД, ПІБ\n
+        <b>Ситуація:</b> ${body}\n
+        <b>Задача:</b> ${task}\n
+        <b>Інфо про клієнта</b>
+        ПІБ:
+        Код анкети:
+        Абонемент:
+        Ціна:
+        № договору:
+        Дата оформлення:\n
+        `;
+
+        bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
+      }
+      if (category === "accounting") {
+        const htmlMessage = `
+        Адресати: ${recipients}\n\nТема листа: ${title}, ПОД, ПІБ\n
+        <b>Ситуація:</b> ${body}\n
+        <b>Задача:</b> ${task}\n
+        <b>Підстава:</b> помилка менеджера\n
+        <b>Інфо про клієнта</b>
+        ПІБ:
+        Код анкети:
+        Дата оформлення:\n
+        `;
+
+        bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
+      }
+    } else {
+      bot.sendMessage(chatId, "Хм, щось пішло не так");
+    }
   });
 };
 
 start();
-//mironiak.yana@sportlife.kiev.ua, kovenia.vladyslav@sportlife.kiev.ua, Biliatynska.Yuliia@sportlife.kiev.ua, scherbakova.alla@sportlife.kiev.ua

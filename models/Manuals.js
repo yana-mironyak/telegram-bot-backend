@@ -5,6 +5,7 @@ const manualsSchema = new Schema({
   title: { type: String, required: true },
   body: { type: String, required: true },
   category: { type: String, required: true },
+  task: { type: String },
 });
 
 export const Manuals = model("manuals", manualsSchema);
