@@ -5,6 +5,11 @@ import { getAllManuals, getById } from "./routes/api/manuals.api.js";
 
 dotenv.config();
 
+const webhookUrl =
+  "https://telegram-bot-backend-five.vercel.app/api/telegram-bot";
+
+bot.setWebHook(webhookUrl);
+
 const token = process.env.TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
