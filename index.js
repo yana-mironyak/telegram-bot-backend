@@ -1,9 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import * as dotenv from "dotenv";
 import connectDB from "./config/database.js";
-import getAllFitness from "./routes/api/fitness.api.js";
-import getAllLegal from "./routes/api/legal.api.js";
-import getAllAccounting from "./routes/api/accounting.api.js";
+import { getAllManuals, getById } from "./routes/api/manuals.api.js";
 
 dotenv.config();
 
@@ -17,17 +15,36 @@ const options = {
   }),
 };
 
+const keyboardByCategory = {
+  fitness: [],
+  test: [],
+};
+
+const dataByCategory = async () => {
+  const data = await getAllManuals();
+
+  data.forEach((item) => {
+    if (item.category === "fitness") {
+      keyboardByCategory.fitness.push(item);
+    } else if (item.category === "test") {
+      keyboardByCategory.test.push(item);
+    }
+  });
+};
+
+dataByCategory();
+
 const dataHandlers = {
   Бухгалтерія: {
-    getAllData: getAllAccounting,
+    category: "test",
     successMessage: "Боже поможи",
   },
   ЮД: {
-    getAllData: getAllLegal,
+    category: "test",
     successMessage: "Хтось нарвався?",
   },
   Фітнес: {
-    getAllData: getAllFitness,
+    category: "fitness",
     successMessage: "Ахрана-атмєна",
   },
 };
@@ -53,8 +70,8 @@ const start = async () => {
     }
 
     if (dataHandlers[text]) {
-      const { getAllData, successMessage } = dataHandlers[text];
-      const data = await getAllData();
+      const { category, successMessage } = dataHandlers[text];
+      const data = keyboardByCategory[category];
 
       const keyboard = {
         reply_markup: JSON.stringify({
@@ -73,38 +90,40 @@ const start = async () => {
   bot.on("callback_query", async (query) => {
     const textId = query.data;
     const chatId = query.message.chat.id;
+    console.log(textId);
 
-    const findManual = async (textId) => {
-      for (const categoryData of Object.values(dataHandlers)) {
-        const selectedManual = await categoryData
-          .getAllData()
-          .find((item) => item.id == textId);
+    // const findManual = async (textId) => {
+    //   for (const categoryData of Object.values(dataHandlers)) {
+    //     const data = await categoryData.getAllData();
+    //     const selectedManual = data.find((item) => item.id == textId);
 
-        if (selectedManual) {
-          return selectedManual;
-        }
-      }
-      return null;
-    };
+    //     if (selectedManual) {
+    //       return selectedManual;
+    //     }
+    //   }
+    //   return null;
+    // };
 
-    const selectedManual = await findManual(textId);
+    // const selectedManual = await findManual(textId);
 
-    if (selectedManual) {
-      const { recipients, title, body } = selectedManual;
+    // if (selectedManual) {
+    //   const { recipients, title, body, category } = selectedManual;
 
-      const htmlMessage = `
-      Адресати: ${recipients}\n\nТема листа: ${title}, Клуб, ПІБ\n
-      <b>${body}</b>\n
-      <b>Інфо про клієнта</b>
-      ПІБ:
-      Код анкети:\n
-      `;
+    //   const htmlMessage = `
+    //   Адресати: ${recipients}\n\nТема листа: ${title}, ПОД, ПІБ\n
+    //   <b>Ситуація:</b> ${body}\n
+    //   <b>Інфо про клієнта</b>
+    //   ПІБ:
+    //   Код анкети:
+    //   Абонемент:\n
+    //   `;
 
-      bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
-    } else {
-      bot.sendMessage(chatId, "Хм, щось пішло не так");
-    }
+    //   bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
+    // } else {
+    //   bot.sendMessage(chatId, "Хм, щось пішло не так");
+    // }
   });
 };
 
 start();
+//mironiak.yana@sportlife.kiev.ua, kovenia.vladyslav@sportlife.kiev.ua, Biliatynska.Yuliia@sportlife.kiev.ua, scherbakova.alla@sportlife.kiev.ua
