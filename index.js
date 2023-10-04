@@ -5,17 +5,19 @@ import { getAllManuals, getById } from "./routes/api/manuals.api.js";
 
 dotenv.config();
 
-const webhookUrl =
-  "https://telegram-bot-backend-five.vercel.app/api/telegram-bot";
-
-bot.setWebHook(webhookUrl);
-
 const token = process.env.TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 const options = {
   reply_markup: JSON.stringify({
-    keyboard: [[{ text: "Бухгалтерія" }, { text: "ЮД" }, { text: "Фітнес" }]],
+    keyboard: [
+      [
+        { text: "Бухгалтерія" },
+        { text: "ЮД" },
+        { text: "Фітнес" },
+        { text: "Сервіс" },
+      ],
+    ],
     resize_keyboard: true,
   }),
 };
@@ -24,6 +26,7 @@ const keyboardByCategory = {
   fitness: [],
   legal: [],
   accounting: [],
+  service: [],
 };
 
 const dataByCategory = async () => {
@@ -35,13 +38,20 @@ const dataByCategory = async () => {
     }
     if (item.category === "legal") {
       keyboardByCategory.legal.push(item);
-    } else if (item.category === "accounting") {
+    }
+    if (item.category === "accounting") {
       keyboardByCategory.accounting.push(item);
+    } else if (item.category === "service") {
+      // const parts = item.title.split(",");
+      // const res = parts.slice(1).join(",");
+      // console.log(res);
+      keyboardByCategory.service.push(item);
     }
   });
 };
 
 dataByCategory();
+console.log(keyboardByCategory);
 
 const dataHandlers = {
   Бухгалтерія: {
@@ -55,6 +65,10 @@ const dataHandlers = {
   Фітнес: {
     category: "fitness",
     successMessage: "Ахрана-атмєна",
+  },
+  Сервіс: {
+    category: "service",
+    successMessage: "Попрошайкі по знижці",
   },
 };
 
@@ -71,11 +85,15 @@ const start = async () => {
     const text = msg.text;
 
     if (text === "/start") {
-      return bot.sendMessage(chatId, "Шо вже трапилось?");
+      return bot.sendMessage(
+        chatId,
+        "Шо вже трапилось? Тицяй категорію",
+        options
+      );
     }
 
     if (text === "/categories") {
-      return bot.sendMessage(chatId, "Тицяй категорію", options);
+      return bot.sendMessage(chatId, "Ну погнали", options);
     }
 
     if (dataHandlers[text]) {
@@ -121,14 +139,13 @@ const start = async () => {
         <b>Інфо про клієнта</b>
         ПІБ:
         Код анкети:
-        Абонемент:\n
         `;
 
         bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
       }
       if (category === "legal") {
         const htmlMessage = `
-        Адресати: ${recipients}\n\nТема листа: ${title}, ПОД, ПІБ\n
+        Адресати: ${recipients}\n\nТема листа: ${title}, ПОД, ПІБ\n\nТіло листа:
         <b>Ситуація:</b> ${body}\n
         <b>Задача:</b> ${task}\n
         <b>Інфо про клієнта</b>
@@ -137,7 +154,7 @@ const start = async () => {
         Абонемент:
         Ціна:
         № договору:
-        Дата оформлення:\n
+        Дата оформлення:
         `;
 
         bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
@@ -151,7 +168,21 @@ const start = async () => {
         <b>Інфо про клієнта</b>
         ПІБ:
         Код анкети:
-        Дата оформлення:\n
+        Дата оформлення:
+        `;
+
+        bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
+      }
+      if (category === "service") {
+        const htmlMessage = `
+        Адресати: ${recipients}\n\nТема листа: ${title}, ПОД, ПІБ\n
+        <b>Ситуація:</b> ${body}\n
+        <b>Задача:</b> ${task}\n
+        <b>Підстава:</b> помилка менеджера\n
+        <b>Інфо про клієнта</b>
+        ПІБ:
+        Код анкети:
+        Абонемент:
         `;
 
         bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
