@@ -42,16 +42,12 @@ const dataByCategory = async () => {
     if (item.category === "accounting") {
       keyboardByCategory.accounting.push(item);
     } else if (item.category === "service") {
-      // const parts = item.title.split(",");
-      // const res = parts.slice(1).join(",");
-      // console.log(res);
       keyboardByCategory.service.push(item);
     }
   });
 };
 
 dataByCategory();
-console.log(keyboardByCategory);
 
 const dataHandlers = {
   Бухгалтерія: {
@@ -134,18 +130,19 @@ const start = async () => {
     if (selectedManual) {
       if (category === "fitness") {
         const htmlMessage = `
-        Адресати: ${recipients}\n\nТема листа: ${title}, ПОД, ПІБ\n
+        <u>Адресати:</u> ${recipients}\n\n<u>Тема листа:</u> ${title}, ПОД, ПІБ\n\n<u>Тіло листа:</u>
         <b>Ситуація:</b> ${body}\n
         <b>Інфо про клієнта</b>
         ПІБ:
-        Код анкети:
+        Код анкети:\n
+        <i>Обов'язково прикріпити скрін проходів</i>     
         `;
 
         bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
       }
       if (category === "legal") {
         const htmlMessage = `
-        Адресати: ${recipients}\n\nТема листа: ${title}, ПОД, ПІБ\n\nТіло листа:
+        <u>Адресати:</u> ${recipients}\n\n<u>Тема листа:</u> ${title}, ПОД, ПІБ\n\n<u>Тіло листа:</u>
         <b>Ситуація:</b> ${body}\n
         <b>Задача:</b> ${task}\n
         <b>Інфо про клієнта</b>
@@ -154,35 +151,53 @@ const start = async () => {
         Абонемент:
         Ціна:
         № договору:
-        Дата оформлення:
+        Дата оформлення:\n
+        <i>Обов'язково прикріпити скрін анкети клієнта та вкладку "абонементи"</i> 
         `;
 
         bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
       }
       if (category === "accounting") {
+        if (title === "Перенос грошових коштів з депозита") {
+          const htmlMessage = `
+          <u>Адресати:</u> ${recipients}\n\n<u>Тема листа:</u> ${title}, ПОД, ПІБ\n\n<u>Тіло листа:</u>
+          <b>Ситуація:</b> ${body}\n
+          <b>Задача:</b> ${task}\n
+          <b>Причина:</b> Помилково поклали гроші не на ту картку\n
+          <b>Інфо про клієнта 1 (перенести з)</b>
+          ПІБ:
+          Код анкети:
+          <b>Інфо про клієнта 2 (перенести на)</b>
+          ПІБ:
+          Код анкети:
+          `;
+
+          bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
+        }
         const htmlMessage = `
-        Адресати: ${recipients}\n\nТема листа: ${title}, ПОД, ПІБ\n
+        <u>Адресати:</u> ${recipients}\n\n<u>Тема листа:</u> ${title}, ПОД, ПІБ\n\n<u>Тіло листа:</u>
         <b>Ситуація:</b> ${body}\n
         <b>Задача:</b> ${task}\n
-        <b>Підстава:</b> помилка менеджера\n
+        <b>Причина:</b> помилка менеджера\n
         <b>Інфо про клієнта</b>
         ПІБ:
         Код анкети:
-        Дата оформлення:
+        Дата оформлення:\n
+        <i>Обов'язково прикріпити заяву клієнта</i> 
         `;
 
         bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
       }
       if (category === "service") {
         const htmlMessage = `
-        Адресати: ${recipients}\n\nТема листа: ${title}, ПОД, ПІБ\n
+        <u>Адресати:</u> ${recipients}\n\n<u>Тема листа:</u> ${title}, ПОД, ПІБ\n\n<u>Тіло листа:</u>
         <b>Ситуація:</b> ${body}\n
         <b>Задача:</b> ${task}\n
-        <b>Підстава:</b> помилка менеджера\n
         <b>Інфо про клієнта</b>
         ПІБ:
         Код анкети:
-        Абонемент:
+        Абонемент:\n
+        <i>Прикріпити відповідний документ (довідка, закордонний паспорт, т.д</i> 
         `;
 
         bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" });
